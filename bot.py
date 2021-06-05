@@ -1,5 +1,5 @@
 # {{{ Imports
-import discord, requests, json
+import discord, requests, json, time
 from discord.ext import commands
 # }}}
 # {{{ Get token
@@ -35,6 +35,17 @@ async def uuid(ctx, username=None): #TODO: instead of doingusername=None, add an
         return
     req = getuuid(username)
     await ctx.send(f"Player UUID: {req}")
+@bot.command()
+async def ping(ctx):
+    '''I'm a good person! TOTALLY not stolen from https://www.programcreek.com/python/?code=Der-Eddy%2Fdiscord_bot%2Fdiscord_bot-master%2Fcogs%2Futility.py'''
+    ping = ctx.message
+    pong = await ctx.send('**:ping_pong:** Pong! (If the bot gets stuck here please contact the developers)')
+    delta = pong.created_at - ping.created_at
+    delta = int(delta.total_seconds() * 1000)
+    hi1 = time.time()
+    await pong.edit(content=f':ping_pong: Pong! ({delta} ms)\n*Finding Discord message edit latency...*')
+    hi2 = time.time()
+    await pong.edit(content=f':ping_pong: Pong! ({delta} ms)\n*Discord message edit latency: {hi2 - hi1}*')
 # }}}
 # {{{ Run bot
 bot.run(DISCORD_API_KEY)
