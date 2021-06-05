@@ -30,11 +30,12 @@ async def uuid(ctx, username=None): #TODO: instead of doingusername=None, add an
     """
     Gets the UUID of a player. based on their username.
     """
+    status = await ctx.send(_("Loading from API..."))
     if username is None:
-        await ctx.send(_("Error: you must specify player name"))
+        await status.edit(_("Error: you must specify player name"))
         return
     req = getuuid(username)
-    await ctx.send(f"Player UUID: {req}")
+    await status.edit(_(f"Player UUID: %s") % req)
 @bot.command()
 async def ping(ctx):
     '''I'm a good person! TOTALLY not stolen from https://www.programcreek.com/python/?code=Der-Eddy%2Fdiscord_bot%2Fdiscord_bot-master%2Fcogs%2Futility.py'''
@@ -46,6 +47,20 @@ async def ping(ctx):
     await pong.edit(content=f':ping_pong: Pong! ({delta} ms)\n*Finding Discord message edit latency...*')
     hi2 = time.time()
     await pong.edit(content=f':ping_pong: Pong! ({delta} ms)\n*Discord message edit latency: {hi2 - hi1}*')
+@bot.command()
+async def hypixel(ctx,player):
+    """
+    Checks overall stats
+    """
+    thing = await ctx.send(_("Fetching player data..."))
+    req = requests.get(f"https://api.hypixel.net/player?uuid={getuuid(player)}&key={HYPIXEL_API_KEY}")
+    contents = json.loads(req.text)
+    if contents['success'] is False:
+        await thing.edit(content=_("Invalid player name!"))
+    contents = contents['player']
+    await ctx.send(embed=discord.Embed(
+        title=f"{player}'{_('s Hypixel Stats')}",
+        footer=_("Thanks for using Hypibot!")).add_field(name="UUID",value=getuuid(player),inline=True))
 # }}}
 # {{{ Run bot
 bot.run(DISCORD_API_KEY)
