@@ -2,6 +2,7 @@
 import discord, requests, json, time
 from discord.ext import commands
 from hypixel_bot_tools import *
+import hypixel_bot_tools.errors
 # }}}
 # {{{ Get token
 try:
@@ -57,7 +58,10 @@ async def hypixel(ctx,player,ConvertToUUID=True):
         await ctx.send(_(":warning: Ran out of API queries per minute. Please wait a little while before continuing..."))
         return False
     thing = await ctx.send(_("Fetching player data... If this message doesn't go away, the bot is _definitely_ not broken. :soundsrightbud:"))
-    contents = overall(HYPIXEL_API_KEY,player,ConvertToUUID)
+    try:
+        contents = overall(HYPIXEL_API_KEY,player,ConvertToUUID)
+    except hypixel_bot_tools.errors.InvalidPlayer:
+        await thing.edit(content=_(":warning: Invalid player!"));raise
     print(contents)
     em = discord.Embed(
         title=f"{contents['displayname']}'{_('s Hypixel Stats')}",
