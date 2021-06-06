@@ -20,26 +20,7 @@ async def on_ready():
 def _(string):
     return string
 # }}}
-# {{{ Commands
-def getuuid(username):
-    req = requests.get(f"https://api.mojang.com/users/profiles/minecraft/{username}").text
-    req = json.loads(req)
-    return req['id']
-def translaterank(rank):
-    # originally i had implemented this with if statements but then i thought of this (i had got up to vip+ with the if statements)
-    #the following if statements are exceptions
-    if rank == "SUPERSTAR": rank = "MVP_PLUS_PLUS"
-    if rank == "YOUTUBER": rank = "YOUTUBE"
-    if rank is None: return "Regular"
-    rank = rank.replace("_","").replace("PLUS","+")
-    for letter in "abcdefghijklmnopqrstuvwxyz0123456789_[]§": #safe since there aren't lowercases in ranks and ive never seen numbers in ranks before
-        rank = rank.replace(letter,"")
-    return f"[{rank}]"
-def checkapi():
-    req = requests.get(f"https://api.hypixel.net/key?key={HYPIXEL_API_KEY}").text
-    req = json.loads(req)
-    if req['record']['queriesInPastMin'] >= 120:
-        return False
+# {{{ Command
 @bot.command(name="uuid")
 async def uuid(ctx, username=None): #TODO: instead of doingusername=None, add an error handler if this doesnt get fulfilled
     """
