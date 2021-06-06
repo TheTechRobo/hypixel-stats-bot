@@ -25,11 +25,22 @@ def getuuid(username):
     req = requests.get(f"https://api.mojang.com/users/profiles/minecraft/{username}").text
     req = json.loads(req)
     return req['id']
+def translaterank(rank):
+    # originally i had implemented this with if statements but then i thought of this (i had got up to vip+ with the if statements)
+    return rank.replace("_"," ").replace("PLUS","+")
+def checkapi():
+    req = requests.get(f"https://api.hypixel.net/key?key={HYPIXEL_API_KEY}").text
+    req = json.loads(req)
+    if req['record']['queriesInPastMin'] >= 120:
+        return False
 @bot.command(name="uuid")
 async def uuid(ctx, username=None): #TODO: instead of doingusername=None, add an error handler if this doesnt get fulfilled
     """
     Gets the UUID of a player. based on their username.
     """
+    if checkapi() is False:
+        await ctx.send(_(":warning: Ran out of API queries per minute. Please wait a little while before continuing..."))
+        return False
     status = await ctx.send(_("Loading from API..."))
     if username is None:
         await status.edit(_("Error: you must specify player name"))
@@ -52,15 +63,26 @@ async def hypixel(ctx,player):
     """
     Checks overall stats
     """
+    if checkapi() is False:
+        await ctx.send(_(":warning: Ran out of API queries per minute. Please wait a little while before continuing..."))
+        return False
     thing = await ctx.send(_("Fetching player data..."))
     req = requests.get(f"https://api.hypixel.net/player?uuid={getuuid(player)}&key={HYPIXEL_API_KEY}")
     contents = json.loads(req.text)
     if contents['success'] is False:
         await thing.edit(content=_("Invalid player name!"))
     contents = contents['player']
-    await ctx.send(embed=discord.Embed(
+    try:
+        contents['rank']
+    except KeyError:
+        contents['rank'] = contents['newPackageRank']
+    print(contents)
+    em = discord.Embed(
         title=f"{player}'{_('s Hypixel Stats')}",
-        footer=_("Thanks for using Hypibot!")).add_field(name="UUID",value=getuuid(player),inline=True))
+        footer=_("Thanks for using Hypibot!"))
+    em.add_field(name=_("UUID"),value=getuuid(player),inline=True)
+    em.add_field(name="Rank", value=translaterank(contents['rank']),inline=True)
+    await ctx.send(embed=em)
 # }}}
 # {{{ Run bot
 bot.run(DISCORD_API_KEY)
