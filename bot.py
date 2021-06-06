@@ -1,6 +1,7 @@
 # {{{ Imports
 import discord, requests, json, time
 from discord.ext import commands
+from hypixel_bot_tools import *
 # }}}
 # {{{ Get token
 try:
@@ -26,7 +27,7 @@ async def uuid(ctx, username=None): #TODO: instead of doingusername=None, add an
     """
     Gets the UUID of a player. based on their username.
     """
-    if checkapi() is False:
+    if checkapi(HYPIXEL_API_KEY) is False:
         await ctx.send(_(":warning: Ran out of API queries per minute. Please wait a little while before continuing..."))
         return False
     status = await ctx.send(_("Loading from API..."))
@@ -34,7 +35,7 @@ async def uuid(ctx, username=None): #TODO: instead of doingusername=None, add an
         await status.edit(_("Error: you must specify player name"))
         return
     req = getuuid(username)
-    await status.edit(_(f"Player UUID: %s") % req)
+    await status.edit(content=_("Player UUID: %s") % req)
 @bot.command()
 async def ping(ctx):
     '''I'm a good person! TOTALLY not stolen from https://www.programcreek.com/python/?code=Der-Eddy%2Fdiscord_bot%2Fdiscord_bot-master%2Fcogs%2Futility.py'''
@@ -51,7 +52,7 @@ async def hypixel(ctx,player):
     """
     Checks overall stats
     """
-    if checkapi() is False:
+    if checkapi(HYPIXEL_API_KEY) is False:
         await ctx.send(_(":warning: Ran out of API queries per minute. Please wait a little while before continuing..."))
         return False
     thing = await ctx.send(_("Fetching player data... If this message doesn't go away, the bot is _definitely_ not broken. :soundsrightbud:"))

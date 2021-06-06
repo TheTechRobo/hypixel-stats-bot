@@ -1,3 +1,4 @@
+import requests, json
 def getuuid(username):
     """
     Gets the UUID of a player from their username, using the Mojang API
