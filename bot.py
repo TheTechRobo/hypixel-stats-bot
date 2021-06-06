@@ -27,7 +27,7 @@ def getuuid(username):
     return req['id']
 def translaterank(rank):
     # originally i had implemented this with if statements but then i thought of this (i had got up to vip+ with the if statements)
-    return rank.replace("_"," ").replace("PLUS","+")
+    return rank.replace("_","").replace("PLUS","+")
 def checkapi():
     req = requests.get(f"https://api.hypixel.net/key?key={HYPIXEL_API_KEY}").text
     req = json.loads(req)
@@ -66,7 +66,7 @@ async def hypixel(ctx,player):
     if checkapi() is False:
         await ctx.send(_(":warning: Ran out of API queries per minute. Please wait a little while before continuing..."))
         return False
-    thing = await ctx.send(_("Fetching player data..."))
+    thing = await ctx.send(_("Fetching player data... If this message doesn't go away, the bot is _definitely_ not broken. :soundsrightbud:"))
     req = requests.get(f"https://api.hypixel.net/player?uuid={getuuid(player)}&key={HYPIXEL_API_KEY}")
     contents = json.loads(req.text)
     if contents['success'] is False:
@@ -75,14 +75,17 @@ async def hypixel(ctx,player):
     try:
         contents['rank']
     except KeyError:
-        contents['rank'] = contents['newPackageRank']
+        try:
+            contents['rank'] = contents['newPackageRank']
+        except KeyError:
+            contents['rank'] = "Regular"
     print(contents)
     em = discord.Embed(
         title=f"{player}'{_('s Hypixel Stats')}",
         footer=_("Thanks for using Hypibot!"))
     em.add_field(name=_("UUID"),value=getuuid(player),inline=True)
     em.add_field(name="Rank", value=translaterank(contents['rank']),inline=True)
-    await ctx.send(embed=em)
+    await thing.edit(embed=em, content="Player data down below.")
 # }}}
 # {{{ Run bot
 bot.run(DISCORD_API_KEY)
