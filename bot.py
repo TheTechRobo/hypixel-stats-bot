@@ -48,7 +48,6 @@ async def ping(ctx):
     await pong.edit(content=f':ping_pong: Pong! ({delta} ms)\n*Finding Discord message edit latency...*')
     hi2 = time.time()
     await pong.edit(content=f':ping_pong: Pong! ({delta} ms)\n*Discord message edit latency: {hi2 - hi1}*')
-def sqrt(num): return num ** 0.5
 @bot.command(name="hypixel",aliases=("h","stats"))
 async def hypixel(ctx,player,ConvertToUUID=True):
     """
@@ -70,7 +69,7 @@ async def hypixel(ctx,player,ConvertToUUID=True):
     em.add_field(name=_("UUID"),value=getuuid(player),inline=True)
     em.add_field(name=_("Rank"), value=contents['rank'],inline=True)
     networkEXP = contents['networkExp']
-    em.add_field(name=_("Network Level"),value=f"{(sqrt((2 * networkEXP) + 30625) / 50) - 2.5} ({_('raw')} {contents['networkExp']})",inline=True)
+    em.add_field(name=_("Network Level"),value=f"{round(RawXPToLevel(networkEXP),2)} ({_('raw')} {contents['networkExp']})",inline=True)
     await thing.edit(embed=em, content="Player data down below.")
 # }}}
 # {{{ Run bot

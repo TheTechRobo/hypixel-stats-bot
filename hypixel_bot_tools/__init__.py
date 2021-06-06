@@ -91,6 +91,14 @@ def guild(HYPIXEL_API_KEY,data,TYPE):
     req = json.loads(requests.get(f"https://api.hypixel.net/guild?key={HYPIXEL_API_KEY}&{TYPE}={data}").text)
     if req['success'] is False: raise UnknownError(req)
     return req
+def sqrt(num): return num ** 0.5
+def RawXPToLevel(xp):
+    """
+    Accepts the number of Xp (API: player.networkExp), and returns the level.
+    Quite a long number, you may want to round it.
+    Kudos to https://hypixel.net/threads/convert-network-exp-to-network-level.1912930 for the formula :D
+    """
+    return (sqrt((2 * xp) + 30625) / 50) - 2.5
 def RestOfTheFunctions():
     """
     The rest of the functions are still a work in progress.
