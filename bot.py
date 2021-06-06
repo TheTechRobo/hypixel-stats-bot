@@ -27,7 +27,14 @@ def getuuid(username):
     return req['id']
 def translaterank(rank):
     # originally i had implemented this with if statements but then i thought of this (i had got up to vip+ with the if statements)
-    return rank.replace("_","").replace("PLUS","+")
+    #the following if statements are exceptions
+    if rank == "SUPERSTAR": rank = "MVP_PLUS_PLUS"
+    if rank == "YOUTUBER": rank = "YOUTUBE"
+    if rank is None: return "Regular"
+    rank = rank.replace("_","").replace("PLUS","+")
+    for letter in "abcdefghijklmnopqrstuvwxyz0123456789_[]§": #safe since there aren't lowercases in ranks and ive never seen numbers in ranks before
+        rank = rank.replace(letter,"")
+    return f"[{rank}]"
 def checkapi():
     req = requests.get(f"https://api.hypixel.net/key?key={HYPIXEL_API_KEY}").text
     req = json.loads(req)
@@ -58,7 +65,7 @@ async def ping(ctx):
     await pong.edit(content=f':ping_pong: Pong! ({delta} ms)\n*Finding Discord message edit latency...*')
     hi2 = time.time()
     await pong.edit(content=f':ping_pong: Pong! ({delta} ms)\n*Discord message edit latency: {hi2 - hi1}*')
-@bot.command()
+@bot.command(name="hypixel",aliases=("h","stats"))
 async def hypixel(ctx,player):
     """
     Checks overall stats
@@ -72,16 +79,18 @@ async def hypixel(ctx,player):
     if contents['success'] is False:
         await thing.edit(content=_("Invalid player name!"))
     contents = contents['player']
+    for i in ("prefix","rank","monthlyPackageRank","newPackageRank"):
+        try:
+            contents['rank'] = contents[i]
+        except KeyError:
+            continue
     try:
         contents['rank']
     except KeyError:
-        try:
-            contents['rank'] = contents['newPackageRank']
-        except KeyError:
-            contents['rank'] = "Regular"
+        contents['rank'] = None
     print(contents)
     em = discord.Embed(
-        title=f"{player}'{_('s Hypixel Stats')}",
+        title=f"{contents['displayname']}'{_('s Hypixel Stats')}",
         footer=_("Thanks for using Hypibot!"))
     em.add_field(name=_("UUID"),value=getuuid(player),inline=True)
     em.add_field(name="Rank", value=translaterank(contents['rank']),inline=True)
