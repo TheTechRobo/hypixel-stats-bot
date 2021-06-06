@@ -48,34 +48,22 @@ async def ping(ctx):
     hi2 = time.time()
     await pong.edit(content=f':ping_pong: Pong! ({delta} ms)\n*Discord message edit latency: {hi2 - hi1}*')
 @bot.command(name="hypixel",aliases=("h","stats"))
-async def hypixel(ctx,player):
+async def hypixel(ctx,player,ConvertToUUID=True):
     """
     Checks overall stats
+    Change ConvertToUUID to False if you want to pass in the UUID, example: `$h <UUID> False` instead of `$h <PlayerName>`.
     """
     if checkapi(HYPIXEL_API_KEY) is False:
         await ctx.send(_(":warning: Ran out of API queries per minute. Please wait a little while before continuing..."))
         return False
     thing = await ctx.send(_("Fetching player data... If this message doesn't go away, the bot is _definitely_ not broken. :soundsrightbud:"))
-    req = requests.get(f"https://api.hypixel.net/player?uuid={getuuid(player)}&key={HYPIXEL_API_KEY}")
-    contents = json.loads(req.text)
-    if contents['success'] is False:
-        await thing.edit(content=_("Invalid player name!"))
-    contents = contents['player']
-    for i in ("prefix","rank","monthlyPackageRank","newPackageRank"):
-        try:
-            contents['rank'] = contents[i]
-        except KeyError:
-            continue
-    try:
-        contents['rank']
-    except KeyError:
-        contents['rank'] = None
+    contents = overall(HYPIXEL_API_KEY,player,ConvertToUUID)
     print(contents)
     em = discord.Embed(
         title=f"{contents['displayname']}'{_('s Hypixel Stats')}",
         footer=_("Thanks for using Hypibot!"))
     em.add_field(name=_("UUID"),value=getuuid(player),inline=True)
-    em.add_field(name="Rank", value=translaterank(contents['rank']),inline=True)
+    em.add_field(name="Rank", value=contents['rank'],inline=True)
     await thing.edit(embed=em, content="Player data down below.")
 # }}}
 # {{{ Run bot
