@@ -56,23 +56,28 @@ def overall(HYPIXEL_API_KEY,player,TranslateRank=True,ConvertToUUID=True):
         contents['rank'] = None
     if TranslateRank: contents['rank'] = translaterank(contents['rank'])
     return contents
-def friends(HYPIXEL_API_KEY,player,Uuid=False):
-    """If you'd like to get the UUID yourself, instead of setting "player" variable to the username, set Uuid to True. That will skip changing the username into a UUID.
+def friends(HYPIXEL_API_KEY,player,ConvertToUUID=True):
+    """If you'd like to get the UUID yourself, instead of setting "player" variable to the username, set ConvertToUUID to False. That will skip changing the username into a UUID.
     Additionally, it doesn't get any other player data, such as the rank, or any information about the friends (including their names - all it gives is the UUIDs of the sender and the receiver!). For those, you may want to use the overall() function."""
-    if not Uuid: player = getuuid(player)
+    if ConvertToUUID: player = getuuid(player)
     req = json.loads(requests.get(f"https://api.hypixel.net/friends?key={HYPIXEL_API_KEY}&uuid={player}").text)
     if req['success'] is False:
         raise UnknownError(req)
     return req
+def countfriends(data):
+    """
+    Pass in the output of friends() (or compatible) as data.
+    """
+    return len(data['records'])
 def recentgames(HYPIXEL_API_KEY,player,Uuid=False):
-    """If you'd like to provide the UUID yourself, set Uuid to True. That'll skip the conversion of username provided to UUID."""
-    if not Uuid: player = getuuid(player)
+    """If you'd like to provide the UUID yourself, set ConvertToUUID to False. That'll skip the conversion of username provided to UUID."""
+    if ConvertToUUID: player = getuuid(player)
     req = json.loads(requests.get(f"https://api.hypixel.net/recentgames?key={HYPIXEL_API_KEY}&uuid={player}").text)
     if req['success'] is False:
         raise UnknownError(req)
     return req
-def status(HYPIXEL_API_KEY,player,Uuid=False):
-    """If you'd like to provide the UUID yourself, set Uuid to True. That'll skip the conversion of username provided to UUID.
+def status(HYPIXEL_API_KEY,player,ConvertToUUID=True):
+    """If you'd like to provide the UUID yourself, set ConvertToUUID to False. That'll skip the conversion of username provided to UUID.
     WARNING: Hypixel allows players to disable this api access, in which case it'll look like they're offline. For more info, see https://github.com/HypixelDev/PublicAPI/wiki/Common-Questions."""
     if not Uuid: player = getuuid(player)
     req = json.loads(requests.get(f"https://api.hypixel.net/status?key={HYPIXEL_API_KEY}&uuid={player}").text)
@@ -91,14 +96,14 @@ def guild(HYPIXEL_API_KEY,data,TYPE):
     req = json.loads(requests.get(f"https://api.hypixel.net/guild?key={HYPIXEL_API_KEY}&{TYPE}={data}").text)
     if req['success'] is False: raise UnknownError(req)
     return req
-def sqrt(num): return num ** 0.5
+def _sqrt(num): return num ** 0.5
 def RawXPToLevel(xp):
     """
     Accepts the number of Xp (API: player.networkExp), and returns the level.
     Quite a long number, you may want to round it.
     Kudos to https://hypixel.net/threads/convert-network-exp-to-network-level.1912930 for the formula :D
     """
-    return (sqrt((2 * xp) + 30625) / 50) - 2.5
+    return (_sqrt((2 * xp) + 30625) / 50) - 2.5
 def RestOfTheFunctions():
     """
     The rest of the functions are still a work in progress.

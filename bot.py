@@ -63,15 +63,18 @@ async def hypixel(ctx,player,ConvertToUUID=True):
     except hypixel_bot_tools.errors.InvalidPlayer:
         await thing.edit(content=_(":warning: Invalid player!"));raise
     print(contents)
+    lenfriends = countfriends(friends(HYPIXEL_API_KEY,player,ConvertToUUID))
     em = discord.Embed(
         title=f"{contents['displayname']}'{_('s Hypixel Stats')}",
         footer=_("Thanks for using Hypibot!"))
     em.add_field(name=_("UUID"),value=getuuid(player),inline=True)
     em.add_field(name=_("Rank"), value=contents['rank'],inline=True)
-    networkEXP = contents['networkExp']
-    em.add_field(name=_("Network Level"),value=f"{round(RawXPToLevel(networkEXP),2)} ({_('raw')} {contents['networkExp']})",inline=True)
+    em.add_field(name=_("Network Level"),value=f"{round(RawXPToLevel(contents['networkExp']),2)} ({_('raw')} {contents['networkExp']})",inline=True)
+    em.add_field(name=_("Karma"),value=contents['karma'],inline=True)
+    em.add_field(name=_("Friends"),value=lenfriends,inline=True)
     await thing.edit(embed=em, content="Player data down below.")
 # }}}
 # {{{ Run bot
-bot.run(DISCORD_API_KEY)
+if __name__ == "__main__":
+    bot.run(DISCORD_API_KEY)
 # }}}
