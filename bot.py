@@ -64,6 +64,26 @@ async def hypixel(ctx,player,ConvertToUUID=True):
         await thing.edit(content=_(":warning: Invalid player!"));raise
     print(contents)
     lenfriends = countfriends(friends(HYPIXEL_API_KEY,player,ConvertToUUID))
+    try:
+        statusAPI = contents['settings']['apiSession']
+    except KeyError:
+        statusAPI = True
+    if not statusAPI:
+        statusAPI_Message = _("API access disabled")
+        currentStatus_Message = _("Unavailable - API access disabled")
+    else:
+        item = status(HYPIXEL_API_KEY,player,ConvertToUUID)['session']
+        statusAPI_Message = item['online']
+        try:
+            currentStatus_Message = f"{item['gameType']} ({_('mode')} {item['mode']}); {_('on map')} {item['map']}"
+        except KeyError:
+            currentStatus_Message = _("Offline")
+    for i in ("karma",): #these are fields that might not exist
+        try:
+            contents[i]
+        except KeyError:
+            contents[i] = 0
+            continue
     em = discord.Embed(
         title=f"{contents['displayname']}'{_('s Hypixel Stats')}",
         footer=_("Thanks for using Hypibot!"))
@@ -72,6 +92,9 @@ async def hypixel(ctx,player,ConvertToUUID=True):
     em.add_field(name=_("Network Level"),value=f"{round(RawXPToLevel(contents['networkExp']),2)} ({_('raw')} {contents['networkExp']})",inline=True)
     em.add_field(name=_("Karma"),value=contents['karma'],inline=True)
     em.add_field(name=_("Friends"),value=lenfriends,inline=True)
+    em.add_field(name="\u200b",value="\u200b",inline=False)#newline; \u200b is a zero width space that is allowed by dcord
+    em.add_field(name=_("Online?"),value=statusAPI_Message,inline=True)
+    em.add_field(name=_("Current Game"),value=currentStatus_Message,inline=True)
     await thing.edit(embed=em, content="Player data down below.")
 # }}}
 # {{{ Run bot

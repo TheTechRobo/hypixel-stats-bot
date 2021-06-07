@@ -69,7 +69,7 @@ def countfriends(data):
     Pass in the output of friends() (or compatible) as data.
     """
     return len(data['records'])
-def recentgames(HYPIXEL_API_KEY,player,Uuid=False):
+def recentgames(HYPIXEL_API_KEY,player,ConvertToUUID=True):
     """If you'd like to provide the UUID yourself, set ConvertToUUID to False. That'll skip the conversion of username provided to UUID."""
     if ConvertToUUID: player = getuuid(player)
     req = json.loads(requests.get(f"https://api.hypixel.net/recentgames?key={HYPIXEL_API_KEY}&uuid={player}").text)
@@ -79,7 +79,7 @@ def recentgames(HYPIXEL_API_KEY,player,Uuid=False):
 def status(HYPIXEL_API_KEY,player,ConvertToUUID=True):
     """If you'd like to provide the UUID yourself, set ConvertToUUID to False. That'll skip the conversion of username provided to UUID.
     WARNING: Hypixel allows players to disable this api access, in which case it'll look like they're offline. For more info, see https://github.com/HypixelDev/PublicAPI/wiki/Common-Questions."""
-    if not Uuid: player = getuuid(player)
+    if ConvertToUUID: player = getuuid(player)
     req = json.loads(requests.get(f"https://api.hypixel.net/status?key={HYPIXEL_API_KEY}&uuid={player}").text)
     if req['success'] is False:
         raise UnknownError(req)
