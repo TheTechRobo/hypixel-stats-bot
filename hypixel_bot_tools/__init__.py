@@ -49,7 +49,7 @@ def overall(HYPIXEL_API_KEY,player,TranslateRank=True,ConvertToUUID=True):
         try:
             print(f"{i}: {contents[i]}")
             sgfdf = contents[i]
-            if sgfdf == "NONE":
+            if sgfdf == "NONE" or sgfdf == "NORMAL" and sgfdf != "prefix":
                 continue
             contents['rank'] = sgfdf
             break
