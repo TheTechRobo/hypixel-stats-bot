@@ -47,7 +47,12 @@ def overall(HYPIXEL_API_KEY,player,TranslateRank=True,ConvertToUUID=True):
     contents = contents['player']
     for i in ("prefix","rank","monthlyPackageRank","newPackageRank"):
         try:
-            contents['rank'] = contents[i]
+            print(f"{i}: {contents[i]}")
+            sgfdf = contents[i]
+            if sgfdf == "NONE":
+                continue
+            contents['rank'] = sgfdf
+            break
         except KeyError:
             continue
     try:

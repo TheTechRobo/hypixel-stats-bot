@@ -62,7 +62,6 @@ async def hypixel(ctx,player,ConvertToUUID=True):
         contents = overall(HYPIXEL_API_KEY,player,ConvertToUUID)
     except hypixel_bot_tools.errors.InvalidPlayer:
         await thing.edit(content=_(":warning: Invalid player!"));raise
-    print(contents)
     lenfriends = countfriends(friends(HYPIXEL_API_KEY,player,ConvertToUUID))
     try:
         statusAPI = contents['settings']['apiSession']
