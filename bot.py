@@ -74,6 +74,12 @@ async def hypixel(ctx,player,ConvertToUUID=True):
         item = status(HYPIXEL_API_KEY,player,ConvertToUUID)['session']
         statusAPI_Message = item['online']
         try:
+            for i in ("gameType","mode","map"):
+                try:item[i]
+                except KeyError:
+                    if i == "gameType":
+                        raise
+                    item[i] = "N/A"
             currentStatus_Message = f"{item['gameType']} ({_('mode')} {item['mode']}); {_('on map')} {item['map']}"
         except KeyError:
             currentStatus_Message = _("Offline")
