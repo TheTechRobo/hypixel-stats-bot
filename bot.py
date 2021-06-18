@@ -29,13 +29,7 @@ async def uuid(ctx, username):
     """
     Gets the UUID of a player. based on their username.
     """
-    if checkapi(HYPIXEL_API_KEY) is False:
-        await ctx.send(_(":warning: Ran out of API queries per minute. Please wait a little while before continuing..."))
-        return False
     status = await ctx.send(_("Loading from API..."))
-    if username is None:
-        await status.edit(_("Error: you must specify player name"))
-        return
     req = getuuid(username)
     await status.edit(content=_("Player UUID: %s") % req)
 @bot.command()
@@ -117,19 +111,16 @@ async def on_command_error(ctx, error):
         potentialMessages = [f'This command is on cooldown, please wait {int(error.retry_after)}s.']
         message = (random.choice(potentialMessages))
         print('\nSomeone tried to do a command that was on cooldown')
-    if isinstance(error, commands.MissingRequiredArgument):
+    elif isinstance(error, commands.MissingRequiredArgument):
         strerror = str(error).split(' ')[0]
-        message = _("You seem to be missing a required argument \"{strerror}\". Run `{PREFIX}help [command]` for more information.")
-        for i in (globals(),locals()):
-            try:
-                message = message.format(**i)
-            except (KeyError, AttributeError):
-                continue
-    if isinstance(error, hypierror.HypixelApiDown):
-        message = _("⚠️ Oops! ⚠️\nWe couldn't contact the hypixel API. Is the service down?")
+        message = _("You seem to be missing a required argument \"{strerror}\". Run `{PREFIX}help [command]` for more information.").format(PREFIX=PREFIX, strerror=strerror)
+    elif isinstance(error, hypierror.HypixelApiDown):
+        message = _("We couldn't contact the hypixel API. Is the service down?")
     else:
         message = "Unknown error !"
-    await ctx.send(embed=discord.Embed(title=_("Error!"), description=message, footer=error))
+    em = discord.Embed(title=_("⚠️ Oops! ⚠️"), description=message)
+    em.set_footer(text=error)
+    await ctx.send(embed=em)
     raise(error)
 # }}}
 # {{{ Run bot
