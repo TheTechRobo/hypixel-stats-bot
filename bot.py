@@ -25,7 +25,7 @@ def _(string):
 # }}}
 # {{{ Command
 @bot.command(name="uuid")
-async def uuid(ctx, username=None): #TODO: instead of doingusername=None, add an error handler if this doesnt get fulfilled
+async def uuid(ctx, username):
     """
     Gets the UUID of a player. based on their username.
     """
@@ -115,18 +115,22 @@ async def on_command_error(ctx, error):
     error = getattr(error, 'original', error)
     if isinstance(error, commands.CommandOnCooldown):
         potentialMessages = [f'This command is on cooldown, please wait {int(error.retry_after)}s.']
-        await ctx.send(random.choice(potentialMessages))
+        message = (random.choice(potentialMessages))
         print('\nSomeone tried to do a command that was on cooldown')
-        return
     if isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send(f"You seem to be missing a required argument \"{str(error).split(' ')[0]}\". Run `{PREFIX}help [command]` for more information.")
+        strerror = str(error).split(' ')[0]
+        message = _("You seem to be missing a required argument \"{strerror}\". Run `{PREFIX}help [command]` for more information.")
+        for i in (globals(),locals()):
+            try:
+                message = message.format(**i)
+            except (KeyError, AttributeError):
+                continue
         await ctx.send(f"_{error}_")
-        return
     if isinstance(error, hypierror.HypixelApiDown):
-        await ctx.send(":warning: Oops! :warning:\nWe couldn't contact the hypixel API. Is the service down?")
-        return
-    await ctx.send(error)
-    await ctx.send(isinstance(error,hypierror.HypixelApiDown))
+        message = _("⚠️ Oops! ⚠️\nWe couldn't contact the hypixel API. Is the service down?")
+    else:
+        message = "Unknown error !"
+    await ctx.send(embed=discord.Embed(title=_("Error!"), description=message, footer=error))
     raise(error)
 # }}}
 # {{{ Run bot
