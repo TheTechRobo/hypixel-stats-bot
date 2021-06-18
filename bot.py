@@ -118,13 +118,16 @@ async def on_command_error(ctx, error):
         await ctx.send(random.choice(potentialMessages))
         print('\nSomeone tried to do a command that was on cooldown')
         return
+    if isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send(f"You seem to be missing a required argument \"{str(error).split(' ')[0]}\". Run `{PREFIX}help [command]` for more information.")
+        await ctx.send(f"_{error}_")
+        return
     if isinstance(error, hypierror.HypixelApiDown):
         await ctx.send(":warning: Oops! :warning:\nWe couldn't contact the hypixel API. Is the service down?")
         return
-    else:
-        await ctx.send(error)
-        await ctx.send(isinstance(error,hypierror.HypixelApiDown))
-        raise(error)
+    await ctx.send(error)
+    await ctx.send(isinstance(error,hypierror.HypixelApiDown))
+    raise(error)
 # }}}
 # {{{ Run bot
 if __name__ == "__main__":
