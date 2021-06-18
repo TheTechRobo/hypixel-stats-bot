@@ -125,7 +125,6 @@ async def on_command_error(ctx, error):
                 message = message.format(**i)
             except (KeyError, AttributeError):
                 continue
-        await ctx.send(f"_{error}_")
     if isinstance(error, hypierror.HypixelApiDown):
         message = _("⚠️ Oops! ⚠️\nWe couldn't contact the hypixel API. Is the service down?")
     else:
