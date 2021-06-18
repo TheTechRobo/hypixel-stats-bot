@@ -27,7 +27,10 @@ def checkapi(key):
     Checks if the API key is exhausted from requests; if so, returns False. If not, returns None.
     """
     req = requests.get(f"https://api.hypixel.net/key?key={key}").text
-    req = json.loads(req)
+    try:
+        req = json.loads(requests.get(f"https://api.hypixel.net/key?key={key}").text)
+    except Exception as ename:
+        raise HypixelApiDown("Couldn't contact the server. (%s)"%ename)
     if req['record']['queriesInPastMin'] >= 120:
         return False
 
@@ -40,8 +43,11 @@ def overall(HYPIXEL_API_KEY,player,TranslateRank=True,ConvertToUUID=True):
     """
     if ConvertToUUID:
         player = getuuid(player)
-    req = requests.get(f"https://api.hypixel.net/player?uuid={player}&key={HYPIXEL_API_KEY}")
-    contents = json.loads(req.text)
+    try:
+        req = requests.get(f"https://api.hypixel.net/player?uuid={player}&key={HYPIXEL_API_KEY}")
+        contents = json.loads(req.text)
+    except Exception as ename:
+        raise HypixelApiDown("Couldn't contact the server. (%s)"%ename)
     if contents['success'] is False:
         raise UnknownError(contents)
     contents = contents['player']
@@ -65,7 +71,10 @@ def friends(HYPIXEL_API_KEY,player,ConvertToUUID=True):
     """If you'd like to get the UUID yourself, instead of setting "player" variable to the username, set ConvertToUUID to False. That will skip changing the username into a UUID.
     Additionally, it doesn't get any other player data, such as the rank, or any information about the friends (including their names - all it gives is the UUIDs of the sender and the receiver!). For those, you may want to use the overall() function."""
     if ConvertToUUID: player = getuuid(player)
-    req = json.loads(requests.get(f"https://api.hypixel.net/friends?key={HYPIXEL_API_KEY}&uuid={player}").text)
+    try:
+        req = json.loads(requests.get(f"https://api.hypixel.net/friends?key={HYPIXEL_API_KEY}&uuid={player}").text)
+    except Exception as ename:
+        raise HypixelApiDown("Couldn't contact the server. (%s)"%ename)
     if req['success'] is False:
         raise UnknownError(req)
     return req
@@ -77,7 +86,10 @@ def countfriends(data):
 def recentgames(HYPIXEL_API_KEY,player,ConvertToUUID=True):
     """If you'd like to provide the UUID yourself, set ConvertToUUID to False. That'll skip the conversion of username provided to UUID."""
     if ConvertToUUID: player = getuuid(player)
-    req = json.loads(requests.get(f"https://api.hypixel.net/recentgames?key={HYPIXEL_API_KEY}&uuid={player}").text)
+    try:
+        req = json.loads(requests.get(f"https://api.hypixel.net/recentgames?key={HYPIXEL_API_KEY}&uuid={player}").text)
+    except Exception as ename:
+        raise HypixelApiDown("Couldn't contact the server. (%s)"%ename)
     if req['success'] is False:
         raise UnknownError(req)
     return req
@@ -85,7 +97,10 @@ def status(HYPIXEL_API_KEY,player,ConvertToUUID=True):
     """If you'd like to provide the UUID yourself, set ConvertToUUID to False. That'll skip the conversion of username provided to UUID.
     WARNING: Hypixel allows players to disable this api access, in which case it'll look like they're offline. For more info, see https://github.com/HypixelDev/PublicAPI/wiki/Common-Questions."""
     if ConvertToUUID: player = getuuid(player)
-    req = json.loads(requests.get(f"https://api.hypixel.net/status?key={HYPIXEL_API_KEY}&uuid={player}").text)
+    try:
+        req = json.loads(requests.get(f"https://api.hypixel.net/status?key={HYPIXEL_API_KEY}&uuid={player}").text)
+    except Exception as ename:
+        raise HypixelApiDown("Couldn't contact the server. (%s)"%ename)
     if req['success'] is False:
         raise UnknownError(req)
     return req
@@ -98,7 +113,10 @@ def guild(HYPIXEL_API_KEY,data,TYPE):
     DATA should be set to the guild ID, player UUID, or guild name, depending on the TYPE you chose.
     URL used: f"https://api.hypixel.net/guild?key={HYPIXEL_API_KEY}&{TYPE}={data}
     """
-    req = json.loads(requests.get(f"https://api.hypixel.net/guild?key={HYPIXEL_API_KEY}&{TYPE}={data}").text)
+    try:
+        req = json.loads(requests.get(f"https://api.hypixel.net/guild?key={HYPIXEL_API_KEY}&{TYPE}={data}").text)
+    except Exception as ename:
+        raise HypixelApiDown("Couldn't contact the server. (%s)"%ename)
     if req['success'] is False: raise UnknownError(req)
     return req
 def _sqrt(num): return num ** 0.5
@@ -113,4 +131,4 @@ def RestOfTheFunctions():
     """
     The rest of the functions are still a work in progress.
     """
-    raise BaseException
+    raise BaseException("You dare run me?! I'll crash your program!")

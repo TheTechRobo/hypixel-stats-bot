@@ -3,6 +3,7 @@ import discord, requests, json, time
 from discord.ext import commands
 from hypixel_bot_tools import *
 import hypixel_bot_tools.errors
+hypierror = hypixel_bot_tools.errors
 # }}}
 # {{{ Get token
 try:
@@ -60,7 +61,7 @@ async def hypixel(ctx,player,ConvertToUUID=True):
     thing = await ctx.send(_("Fetching player data... If this message doesn't go away, the bot is _definitely_ not broken. :soundsrightbud:"))
     try:
         contents = overall(HYPIXEL_API_KEY,player,ConvertToUUID)
-    except hypixel_bot_tools.errors.InvalidPlayer:
+    except hypierror.InvalidPlayer:
         await thing.edit(content=_(":warning: Invalid player!"));raise
     lenfriends = countfriends(friends(HYPIXEL_API_KEY,player,ConvertToUUID))
     try:
@@ -97,10 +98,33 @@ async def hypixel(ctx,player,ConvertToUUID=True):
     em.add_field(name=_("Network Level"),value=f"{round(RawXPToLevel(contents['networkExp']),2)} ({_('raw')} {contents['networkExp']})",inline=True)
     em.add_field(name=_("Karma"),value=contents['karma'],inline=True)
     em.add_field(name=_("Friends"),value=lenfriends,inline=True)
-    em.add_field(name="\u200b",value="\u200b",inline=False)#newline; \u200b is a zero width space that is allowed by dcord
+    em.add_field(name="\u200b",value="\u200b",inline=True)#newline; \u200b is a zero width space that is allowed by dcord
     em.add_field(name=_("Online?"),value=statusAPI_Message,inline=True)
     em.add_field(name=_("Current Game"),value=currentStatus_Message,inline=True)
     await thing.edit(embed=em, content="Player data down below.")
+# }}}
+# Error handling {{{
+@bot.event
+async def on_command_error(ctx, error):
+    """
+    Does some stuff in case of cooldown error.
+    Stolen from brewbot.
+    """
+    if hasattr(ctx.command, 'on_error'): #https://gist.github.com/EvieePy/7822af90858ef65012ea500bcecf1612
+        return
+    error = getattr(error, 'original', error)
+    if isinstance(error, commands.CommandOnCooldown):
+        potentialMessages = [f'This command is on cooldown, please wait {int(error.retry_after)}s.']
+        await ctx.send(random.choice(potentialMessages))
+        print('\nSomeone tried to do a command that was on cooldown')
+        return
+    if isinstance(error, hypierror.HypixelApiDown):
+        await ctx.send(":warning: Oops! :warning:\nWe couldn't contact the hypixel API. Is the service down?")
+        return
+    else:
+        await ctx.send(error)
+        await ctx.send(isinstance(error,hypierror.HypixelApiDown))
+        raise(error)
 # }}}
 # {{{ Run bot
 if __name__ == "__main__":
