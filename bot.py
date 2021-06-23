@@ -97,7 +97,20 @@ async def hypixel(ctx,player,ConvertToUUID=True):
     em.add_field(name=_("Current Game"),value=currentStatus_Message,inline=True)
     await thing.edit(embed=em, content="Player data down below.")
 @bot.command()
-async def bedwars(ctx):
+async def bedwars(ctx, player, ConvertToUUID=True):
+    if checkapi(HYPIXEL_API_KEY) is False: #todo; use exceptions instead
+        await ctx.send(_(":warning: Ran out of API queries per minute. Please wait a little while before continuing..."))
+        return False
+    try: contents = overall(HYPIXEL_API_KEY, player, ConvertToUUID=ConvertToUUID)
+    except KeyError: raise InvalidPlayer
+    data = contents['stats']['Bedwars']
+    em = discord.Embed(
+        title=_("%s's Bedwars Stats" % contents['displayname']),
+        footer=_("Thanks for using Hypibot!")
+    )
+    em.add_field(name=_("Experience"), value=data['Experience'],inline=True)
+    em.add_field(name=_("Coins"),value=data['coins'],inline=True)
+    await ctx.send(embed=em)
     for i in ("eight_one","eight_two","three_three","two_four","four_four"):
         await ctx.send(bedwarsToHuman(i))
 # }}}
@@ -120,6 +133,8 @@ async def on_command_error(ctx, error):
         message = _("You seem to be missing a required argument \"{strerror}\". Run `{PREFIX}help [command]` for more information.").format(PREFIX=PREFIX, strerror=strerror)
     elif isinstance(error, hypierror.HypixelApiDown):
         message = _("We couldn't contact the hypixel API. Is the service down?")
+    elif isinstance(error, hypierror.InvalidPlayer):
+        message = _("This seems to be an invalid player - it doesn't have an entry on Mojang's API.\nTry running {PREFIX}bedwars {uuid} False to search by UUID instead. Run {PREFIX}help bedwars for more info.").format(PREFIX=PREFIX, uuid=error)
     else:
         message = "Unknown error !"
     em = discord.Embed(title=_("⚠️ Oops! ⚠️"), description=message)
