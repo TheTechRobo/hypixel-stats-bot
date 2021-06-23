@@ -1,5 +1,6 @@
 import requests, json
 from .errors import *
+from word2number.w2n import word_to_num as w2n
 def getuuid(username):
     """
     Gets the UUID of a player from their username, using the Mojang API
@@ -127,6 +128,23 @@ def RawXPToLevel(xp):
     Kudos to https://hypixel.net/threads/convert-network-exp-to-network-level.1912930 for the formula :D
     """
     return (_sqrt((2 * xp) + 30625) / 50) - 2.5
+def bedwarsToHuman(name):
+    """
+    Converts a bedwars name such as eight_one to a tuple containing the human-friendly name, and something such as 1v1v1v1v1v1v1v1
+    """
+    thingy = str()
+    xvx = name.split("_")
+    # following adds the number of players per team the same amount of times as the team count
+    for j in range(0,w2n(xvx[0])): #num[0] is, for example, the eight in eight_one
+        thingy += f"{w2n(xvx[1])}" #this is the one in eight_one
+        if j != int(w2n(xvx[0])) - 1: thingy += "v"
+    if thingy == "1v1v1v1v1v1v1v1":
+        human = "Solo"
+    elif thingy == "2v2v2v2v2v2v2v2":
+        human = "Doubles"
+    else:
+        human = thingy
+    return human, thingy
 def RestOfTheFunctions():
     """
     The rest of the functions are still a work in progress.

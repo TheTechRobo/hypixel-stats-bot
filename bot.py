@@ -96,6 +96,10 @@ async def hypixel(ctx,player,ConvertToUUID=True):
     em.add_field(name=_("Online?"),value=statusAPI_Message,inline=True)
     em.add_field(name=_("Current Game"),value=currentStatus_Message,inline=True)
     await thing.edit(embed=em, content="Player data down below.")
+@bot.command()
+async def bedwars(ctx):
+    for i in ("eight_one","eight_two","three_three","two_four","four_four"):
+        await ctx.send(bedwarsToHuman(i))
 # }}}
 # Error handling {{{
 @bot.event
