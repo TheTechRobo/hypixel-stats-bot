@@ -18,7 +18,7 @@ def translaterank(rank):
     #the following if statements are exceptions
     if rank == "SUPERSTAR": rank = "MVP_PLUS_PLUS"
     if rank == "YOUTUBER": rank = "YOUTUBE"
-    if rank is None: return "Regular"
+    if rank is None: return "(None)"
     rank = rank.replace("_","").replace("PLUS","+")
     for letter in "abcdefghijklmnopqrstuvwxyz0123456789_[]§": #safe since there aren't lowercases in ranks and ive never seen numbers in ranks before
         rank = rank.replace(letter,"")

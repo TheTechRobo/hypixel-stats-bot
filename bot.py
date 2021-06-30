@@ -1,8 +1,8 @@
 # {{{ Imports
-import discord, requests, json, time
+import discord, requests, json, time, os, hypixel_bot_tools.errors, tempfile
 from discord.ext import commands
 from hypixel_bot_tools import *
-import hypixel_bot_tools.errors
+from cairosvg import svg2png
 hypierror = hypixel_bot_tools.errors
 # }}}
 # {{{ Get token
@@ -76,8 +76,10 @@ async def hypixel(ctx,player,ConvertToUUID=True):
                         raise
                     item[i] = "N/A"
             currentStatus_Message = f"{item['gameType']} ({_('mode')} {item['mode']}); {_('on map')} {item['map']}"
+            onlinecolour = "green"
         except KeyError:
             currentStatus_Message = _("Offline")
+            onlinecolour = "#454545"
     for i in ("karma",): #these are fields that might not exist
         try:
             contents[i]
@@ -87,14 +89,24 @@ async def hypixel(ctx,player,ConvertToUUID=True):
     em = discord.Embed(
         title=f"{contents['displayname']}'{_('s Hypixel Stats')}",
         footer=_("Thanks for using Hypibot!"))
+    val = f"{round(RawXPToLevel(contents['networkExp']),2)} ({_('raw')} {int(contents['networkExp'])})"
     em.add_field(name=_("UUID"),value=getuuid(player),inline=True)
     em.add_field(name=_("Rank"), value=contents['rank'],inline=True)
-    em.add_field(name=_("Network Level"),value=f"{round(RawXPToLevel(contents['networkExp']),2)} ({_('raw')} {contents['networkExp']})",inline=True)
+    em.add_field(name=_("Network Level"),value=val,inline=True)
     em.add_field(name=_("Karma"),value=contents['karma'],inline=True)
     em.add_field(name=_("Friends"),value=lenfriends,inline=True)
     em.add_field(name="\u200b",value="\u200b",inline=True)#newline; \u200b is a zero width space that is allowed by dcord
     em.add_field(name=_("Online?"),value=statusAPI_Message,inline=True)
     em.add_field(name=_("Current Game"),value=currentStatus_Message,inline=True)
+    with open("AnyConv.com__minecraft-2053886_960_7200.svg") as file:
+        svg = file.read().format(uuid=getuuid(player), userhtml="""<text x="25" y="100" style="font-size:40px;">{rank}&#8194;{displayname}</text>""".format(rank=contents['rank'], displayname=contents['displayname']), exp=val, karma=contents['karma'], friends=lenfriends,
+                                 onlinehtml=f'<text x="20" y="250" style="fill:{onlinecolour}; font-size:31px;">{currentStatus_Message}</text>')
+    with tempfile.TemporaryDirectory() as tmp:
+        path = os.path.join(tmp, 'png.pngpng.png') #https://stackoverflow.com/a/45803022/9654083
+        svg2png(bytestring=svg, write_to=path) #https://stackoverflow.com/questions/6589358/convert-svg-to-png-in-python
+        with open(path, "rb") as file: #https://stackoverflow.com/questions/60913131/how-to-send-a-image-with-discord-py
+            file = discord.File(file, filename=path)
+        await ctx.send(file=file)
     await thing.edit(embed=em, content="Player data down below.")
 @bot.command()
 async def bedwars(ctx, player, ConvertToUUID=True):
