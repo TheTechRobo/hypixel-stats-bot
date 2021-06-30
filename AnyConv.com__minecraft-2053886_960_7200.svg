@@ -9453,8 +9453,7 @@ Is The Photo Source!!!                                                    -->
 {userhtml} <!--contains rank, user, etc-->
 <!--<text x="25" y="100" style="font-size:40px;">UserHtml thing...</text>-->
 <text x="20" y="150" style="fill:blue; font-size:30px;">EXP: {exp}</text>
-<text x="451" y="100" style="font-size:25px;">Karma</text>
-<text x="451" y="150" style="fill:teal; font-size:29px;">{karma}</text>
+<text x="290" y="150" style="fill:teal; font-size:29px;">Karma: {karma}</text>
 <text x="20" y="200" style="fill:darkgreen; font-size:31px;">Friends: {friends}</text> <!--things i don't have-->
 {onlinehtml}
 </svg>
