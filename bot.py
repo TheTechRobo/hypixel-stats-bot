@@ -1,7 +1,7 @@
 # {{{ Imports
 import discord, requests, json, time, os, hypixel_bot_tools.errors, tempfile
 from discord.ext import commands
-from hypixel_bot_tools import *
+from hypixel_bot_tools import * #the modular aspect of HypiBot
 from cairosvg import svg2png
 hypierror = hypixel_bot_tools.errors
 # }}}
@@ -18,10 +18,11 @@ bot = commands.Bot(command_prefix=PREFIX)
 async def on_ready():
     print("Ready for action Rider sir!")
     print("PAW PATROL! PAW PATROL! WE'LL BE THERE ON THE DOUBLEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
+    #sorry
 # }}}
 # {{{ pre-gettext wrapper
 def _(string):
-    return string
+    return string #so that we don't have to do a major refac when (if) we add gettext
 # }}}
 # {{{ Command
 @bot.command(name="uuid")
@@ -36,7 +37,7 @@ async def uuid(ctx, username):
 async def ping(ctx):
     '''I'm a good person! TOTALLY not stolen from https://www.programcreek.com/python/?code=Der-Eddy%2Fdiscord_bot%2Fdiscord_bot-master%2Fcogs%2Futility.py'''
     ping = ctx.message
-    pong = await ctx.send('**:ping_pong:** Pong! (If the bot gets stuck here please contact the developers)')
+    pong = await ctx.send('**:ping_pong:** Pong!')
     delta = pong.created_at - ping.created_at
     delta = int(delta.total_seconds() * 1000)
     hi1 = time.time()
@@ -68,24 +69,27 @@ async def hypixel(ctx,player,ConvertToUUID=True, v2=True):
     else:
         item = status(HYPIXEL_API_KEY,player,ConvertToUUID)['session']
         statusAPI_Message = item['online']
+        #todo: i'm a bit dubious about this code {{{
         try:
             for i in ("gameType","mode","map"):
-                try:item[i]
+                try: item[i]
                 except KeyError:
                     if i == "gameType":
-                        raise
+                        raise #set current status message to offline
                     item[i] = "N/A"
             currentStatus_Message = f"{item['gameType']} ({_('mode')} {item['mode']}); {_('on map')} {item['map']}"
             onlinecolour = "green"
         except KeyError:
             currentStatus_Message = _("Offline")
             onlinecolour = "#454545"
+        # }}} endtodo
     for i in ("karma",): #these are fields that might not exist
         try:
             contents[i]
         except KeyError:
             contents[i] = 0
             continue
+    #todo: move this to an if not v2
     em = discord.Embed(
         title=f"{contents['displayname']}'{_('s Hypixel Stats')}",
         footer=_("Thanks for using Hypibot!"))
@@ -100,7 +104,7 @@ async def hypixel(ctx,player,ConvertToUUID=True, v2=True):
     em.add_field(name=_("Current Game"), value=currentStatus_Message,inline=True)
     with open("AnyConv.com__minecraft-2053886_960_7200.svg") as file:
         svg = file.read().format(uuid=getuuid(player), userhtml="""<text x="25" y="100" style="font-size:40px;">{rank}&#8194;{displayname}</text>""".format(rank=contents['rank'], displayname=contents['displayname']), exp=round(RawXPToLevel(contents['networkExp']),2), karma=contents['karma'], friends=lenfriends,
-                                 onlinehtml=f'<text x="20" y="250" style="fill:{onlinecolour}; font-size:31px;">{currentStatus_Message}</text>')
+                                 onlinehtml=f'<text x="20" y="250" style="fill:{onlinecolour}; font-size:31px;">{currentStatus_Message}</text>') #inject details
     with tempfile.TemporaryDirectory() as tmp:
         if v2:
             path = os.path.join(tmp, 'png.pngpng.png') #https://stackoverflow.com/a/45803022/9654083
@@ -109,7 +113,7 @@ async def hypixel(ctx,player,ConvertToUUID=True, v2=True):
                 file = discord.File(file, filename=path)
             await ctx.send("Player data down below.", file=file)
             await thing.delete()
-    if v2 is False:
+    if v2 is False: #todo: move em's declaration to here, also use return up above instead of this
         await thing.edit(embed=em, content="Player data down below.")
 @bot.command()
 async def bedwars(ctx, player, ConvertToUUID=True):
@@ -135,6 +139,8 @@ async def on_command_error(ctx, error):
     """
     Does some stuff in case of cooldown error.
     Stolen from brewbot.
+    _please don't kill me trm..._
+    (I am the one who added this code btw so it doesn't matter)
     """
     if hasattr(ctx.command, 'on_error'): #https://gist.github.com/EvieePy/7822af90858ef65012ea500bcecf1612
         return
