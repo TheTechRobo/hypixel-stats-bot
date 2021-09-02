@@ -106,6 +106,7 @@ async def hypixel(ctx,player,ConvertToUUID=True, v2=True):
         svg = file.read().format(uuid=getuuid(player), userhtml="""<text x="25" y="100" style="font-size:40px;">{rank}&#8194;{displayname}</text>""".format(rank=contents['rank'], displayname=contents['displayname']), exp=round(RawXPToLevel(contents['networkExp']),2), karma=contents['karma'], friends=lenfriends,
                                  onlinehtml=f'<text x="20" y="250" style="fill:{onlinecolour}; font-size:31px;">{currentStatus_Message}</text>') #inject details
     with tempfile.TemporaryDirectory() as tmp:
+        print(tmp)
         if v2:
             path = os.path.join(tmp, 'png.pngpng.png') #https://stackoverflow.com/a/45803022/9654083
             svg2png(bytestring=svg, write_to=path) #https://stackoverflow.com/questions/6589358/convert-svg-to-png-in-python
@@ -155,7 +156,7 @@ async def on_command_error(ctx, error):
     elif isinstance(error, hypierror.HypixelApiDown):
         message = _("We couldn't contact the hypixel API. Is the service down?")
     elif isinstance(error, hypierror.InvalidPlayer):
-        message = _("This seems to be an invalid player - it doesn't have an entry on Mojang's API.\nTry running {PREFIX}bedwars {uuid} False to search by UUID instead. Run {PREFIX}help bedwars for more info.").format(PREFIX=PREFIX, uuid=error)
+        message = _("This seems to be an invalid player - it doesn't have an entry on Mojang's API.\nTry running {PREFIX}[command] {uuid} False to search by UUID instead. Run {PREFIX}help bedwars for more info.").format(PREFIX=PREFIX, uuid=error)
     else:
         message = "Unknown error !"
     em = discord.Embed(title=_("⚠️ Oops! ⚠️"), description=message)
