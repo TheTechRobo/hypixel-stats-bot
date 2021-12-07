@@ -157,6 +157,8 @@ async def on_command_error(ctx, error):
         message = _("We couldn't contact the hypixel API. Is the service down?")
     elif isinstance(error, hypierror.InvalidPlayer):
         message = _("This seems to be an invalid player - it doesn't have an entry on Mojang's API.\nTry running {PREFIX}[command] {uuid} False to search by UUID instead. Run {PREFIX}help bedwars for more info.").format(PREFIX=PREFIX, uuid=error)
+    elif isinstance(error, commands.errors.CommandNotFound):
+        message = _("command not found. Try {PREFIX}help for a list!")
     else:
         message = "Unknown error !"
     em = discord.Embed(title=_("⚠️ Oops! ⚠️"), description=message)
